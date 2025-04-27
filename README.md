@@ -8,7 +8,7 @@
      <p>
       Title: ASCRIBE  <a href='https://youtu.be/69CbXve1Jbg'>[video]</a>
       <li> Autonomous Solutions for Computational Research with Immersive Browsing & Exploration
-      <li> ASCRIBE-VR is a VR platform offering Autonomous Solutions for Computational Research with Immersive Browsing & Exploration, integrating advanced algorithms with scientific images. ASCRIBE-VR enables multimodal analysis, structural assessments, and immersive visualization, supporting scientific visualization of advanced datasets such as X-ray CT, Magnetic Resonance, and synthetic 3D imaging. Our VR tools are compatible with Meta Quest 3 and 3s and facilitate seamless exploration of large-scale 3D images.
+      <li> ASCRIBE-VR is a VR platform offering Autonomous Solutions for Computational Research with Immersive Browsing & Exploration, integrating advanced algorithms with scientific images. ASCRIBE-VR enables multimodal analysis, structural assessments, and immersive visualization, supporting scientific visualization of advanced datasets such as X-ray CT, Magnetic Resonance, synthetic 3D imaging, & much more. Our VR tools are compatible with Meta Quest 3 and 3s and facilitate seamless exploration of large-scale 3D images.
       </td>
  </tr>
 </table>
