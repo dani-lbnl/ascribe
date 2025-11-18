@@ -1,21 +1,23 @@
-# ASCRIBE VR
+# ASCRIBE 
 
 <table border="0">
  <tr>
-    <td><img src="https://github.com/dani-lbnl/ascribe/blob/main/ascribe4materials.png" width="700">
+    <td><img src="https://github.com/dani-lbnl/ascribe/blob/main/ascribe4materials.jpg" width="700">
+    </td>
+  <td><img src="https://github.com/dani-lbnl/ascribe/blob/main/ascribeXR-menu.jpg" width="700">
     </td>
     <td>
      <p>
       Title: ASCRIBE  <a href='https://www.youtube.com/watch?v=2mkX79KLKEs'>[video]</a>
       <li> Autonomous Solutions for Computational Research with Immersive Browsing & Exploration
-      <li> ASCRIBE-VR is a VR platform offering Autonomous Solutions for Computational Research with Immersive Browsing & Exploration, integrating advanced algorithms with scientific images. ASCRIBE-VR enables multimodal analysis, structural assessments, and immersive visualization, supporting scientific visualization of advanced datasets such as X-ray CT, Magnetic Resonance, synthetic 3D imaging, & much more. Our VR tools are compatible with Meta Quest 3 and 3s and facilitate seamless exploration of large-scale 3D images.
+      <li> ASCRIBE is a Berkeley Lab project for research and development of VR platforms, offering Autonomous Solutions for Computational Research with Immersive Browsing & Exploration, integrating advanced algorithms with scientific images. ASCRIBE enables multimodal analysis, structural assessments, and immersive visualization, supporting scientific visualization of advanced datasets such as X-ray CT, Magnetic Resonance, synthetic 3D imaging, & much more. Our VR tools are compatible with Meta Quest and facilitate seamless exploration of large-scale 3D images.
       </td>
  </tr>
 </table>
 
-# Microstructure Visualization in Unreal Engine
+# Microstructure Visualization using ASCRIBE VR Platforms
 
-This repository provides Unreal Engine code specifically developed for the visualization of microstructures. It is designed and optimized for immersive experiences using Meta Quest 3 and Meta Quest 3s. This work is part of the [ASCRIBE project](https://sites.google.com/lbl.gov/ascribe).
+Twice the Fun, Twice the Tech! See our ASCRIBE VR Labs—powered by Unreal AND Godot for the visualization of scientific data microstructures. It is designed and optimized for immersive experiences using Meta Quest 3 and Meta Quest 3s. This work is part of the [ASCRIBE project](https://sites.google.com/lbl.gov/ascribe).
 
 ## Overview
 
