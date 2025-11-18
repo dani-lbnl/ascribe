@@ -47,7 +47,7 @@ ASCRIBE (Autonomous Solutions for Computational Research with Immersive Browsing
 ### Cite this work:
 ```bibtex
 @inproceedings{Pandolfi2025ASCRIBEXR,
-  author    = {Pandolfi, Carlo and Donatelli, Christopher and Todd, Adam and Ushizima, Daniela},
+  author    = {Pandolfi, Ronald, Donatelli and Jeffrey and Todd, Julian and Ushizima, Daniela},
   title     = {{ASCRIBE-XR: Extended Reality for Visualization of Scientific Images}},
   booktitle = {Proceedings of the 11th IEEE/ACM Workshop on Data Reduction for Scientific Data (DRBSD-11)},
   series    = {Supercomputing 25 (SC '25)},
