@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- We use A-Frame, a web framework built specifically for VR browsers -->
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  </head>
+  <body>
+    <!-- 'webxr' automatically injects the 'Enter VR' button for the Quest -->
+    <a-scene webxr>
+      
+      <!-- A cool, complex 3D knot representing our sample geometry -->
+      <a-torus-knot 
+        position="0 1.5 -3" 
+        radius="0.5" 
+        radius-tubular="0.05" 
+        color="#4CC3D9"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
+      </a-torus-knot>
+
+      <!-- A clean dark background and standard lights so it looks crisp -->
+      <a-sky color="#1A1A1A"></a-sky>
+      <a-light type="ambient" color="#BBB"></a-light>
+      <a-light type="directional" color="#FFF" intensity="0.6" position="-0.5 1 1"></a-light>
+      
+    </a-scene>
+  </body>
+</html>
