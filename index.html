@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>PoreSpy Interactive WebXR</title>
+    <title>Interactive Torus VR MVP</title>
     <!-- A-Frame Core Library -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <!-- A-Frame Extras: Provides the missing collision math engines -->
@@ -13,10 +13,7 @@
     
     <a-scene webxr>
       <a-assets>
-        <!-- Your PoreSpy Mesh Binary -->
-        <a-asset-item id="my-mesh" src="pore_network.glb"></a-asset-item>
-        
-        <!-- Rules allowing the model to respond to both close-up touches and lasers -->
+        <!-- Rules allowing the object to respond to both close-up touches and lasers -->
         <a-mixin id="interactable"
                  hoverable grabbable stretchable
                  super-hands="colliderEvent: raycaster-intersection;
@@ -28,30 +25,30 @@
 
       <!-- 1. CONTROLLERS WITH BOTH PHYSICAL TOUCH AND LASER RAYS -->
       <!-- Left Hand -->
-      <a-entity sphere-collider="objects: .network-model" 
+      <a-entity sphere-collider="objects: .interactable-mesh" 
                 super-hands 
                 hand-controls="hand: left"
                 laser-controls="hand: left"
-                raycaster="objects: .network-model; far: 10">
+                raycaster="objects: .interactable-mesh; far: 10">
       </a-entity>
       
       <!-- Right Hand -->
-      <a-entity sphere-collider="objects: .network-model" 
+      <a-entity sphere-collider="objects: .interactable-mesh" 
                 super-hands 
                 hand-controls="hand: right"
                 laser-controls="hand: right"
-                raycaster="objects: .network-model; far: 10">
+                raycaster="objects: .interactable-mesh; far: 10">
       </a-entity>
 
-      <!-- 2. THE GEOMETRY CONTAINER -->
-      <!-- We make sure it uses the 'network-model' class so the hands notice it -->
-      <a-entity class="network-model"
-                mixin="interactable"
-                position="0 1.2 -2" 
-                scale="0.05 0.05 0.05">
-        <!-- Visual GLB nested inside -->
-        <a-gltf-model src="#my-mesh"></a-gltf-model>
-      </a-entity>
+      <!-- 2. THE INTERACTIVE TORUS KNOT -->
+      <!-- We attach the 'interactable-mesh' class so the raycasters can target it -->
+      <a-torus-knot class="interactable-mesh"
+                    mixin="interactable"
+                    position="0 1.5 -2" 
+                    radius="0.4" 
+                    radius-tubular="0.04" 
+                    color="#4CC3D9">
+      </a-torus-knot>
       
       <!-- Scene Lighting and Void Space Background -->
       <a-sky color="#111111"></a-sky>
