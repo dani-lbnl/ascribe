@@ -1,27 +1,51 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <!-- We use A-Frame, a web framework built specifically for VR browsers -->
-    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <title>ASCRIBE WebXR - Dani Vision</title>
+    <!-- Main A-Frame Library -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <!-- Component for controller tracking & interactions -->
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-super-hands-component@master/dist/super-hands.min.js"></script>
   </head>
   <body>
-    <!-- 'webxr' automatically injects the 'Enter VR' button for the Quest -->
+    <!-- we add 'physics' handling so objects can register hand overlaps -->
     <a-scene webxr>
-      
-      <!-- A cool, complex 3D knot representing our sample geometry -->
-      <a-torus-knot 
-        position="0 1.5 -3" 
-        radius="0.5" 
-        radius-tubular="0.05" 
-        color="#4CC3D9"
-        animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
-      </a-torus-knot>
+      <a-assets>
+        <!-- Your PoreSpy Mesh -->
+        <a-asset-item id="my-mesh" src="pore_network.glb"></a-asset-item>
+        
+        <!-- Mixin defining that an object can be hovered, grabbed, and scaled with two hands -->
+        <a-mixin id="interactable"
+                 hoverable grabbable stretchable
+                 shadow-component>
+        </a-mixin>
+      </a-assets>
 
-      <!-- A clean dark background and standard lights so it looks crisp -->
-      <a-sky color="#1A1A1A"></a-sky>
-      <a-light type="ambient" color="#BBB"></a-light>
-      <a-light type="directional" color="#FFF" intensity="0.6" position="-0.5 1 1"></a-light>
+      <!-- 1. THE USER & CONTROLLERS -->
+      <!-- Left Hand Controller -->
+      <a-entity sphere-collider="objects: .cube, .network-model" 
+                super-hands
+                hand-controls="hand: left">
+      </a-entity>
+      <!-- Right Hand Controller -->
+      <a-entity sphere-collider="objects: .cube, .network-model" 
+                super-hands
+                hand-controls="hand: right">
+      </a-entity>
+
+      <!-- 2. YOUR INTERACTIVE OBJECT -->
+      <!-- We wrap your GLB in a generic entity container that accepts the interaction commands -->
+      <a-entity class="network-model"
+                mixin="interactable"
+                position="0 1.5 -1.5" 
+                scale="0.1 0.1 0.1">
+        <!-- The visual model itself nested inside -->
+        <a-gltf-model src="#my-mesh"></a-gltf-model>
+      </a-entity>
       
+      <!-- Environment Setup -->
+      <a-sky color="#1A1A1A"></a-sky>
+      <a-light type="ambient" color="#FFF"></a-light>
     </a-scene>
   </body>
 </html>
