@@ -1,51 +1,63 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>ASCRIBE WebXR - Dani Vision</title>
-    <!-- Main A-Frame Library -->
+    <title>PoreSpy Interactive WebXR</title>
+    <!-- A-Frame Core Library -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <!-- Component for controller tracking & interactions -->
-    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-super-hands-component@master/dist/super-hands.min.js"></script>
+    <!-- A-Frame Extras: Provides the missing collision math engines -->
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+    <!-- Super Hands: Handles grabbing, pulling, and scaling gestures -->
+    <script src="https://unpkg.com/super-hands@^3.0.3/dist/super-hands.min.js"></script>
   </head>
   <body>
-    <!-- we add 'physics' handling so objects can register hand overlaps -->
+    
     <a-scene webxr>
       <a-assets>
-        <!-- Your PoreSpy Mesh -->
+        <!-- Your PoreSpy Mesh Binary -->
         <a-asset-item id="my-mesh" src="pore_network.glb"></a-asset-item>
         
-        <!-- Mixin defining that an object can be hovered, grabbed, and scaled with two hands -->
+        <!-- Rules allowing the model to respond to both close-up touches and lasers -->
         <a-mixin id="interactable"
                  hoverable grabbable stretchable
-                 shadow-component>
+                 super-hands="colliderEvent: raycaster-intersection;
+                              colliderEventProperty: els;
+                              colliderEndEvent:raycaster-intersection-cleared;
+                              colliderEndEventProperty: clearedEls;">
         </a-mixin>
       </a-assets>
 
-      <!-- 1. THE USER & CONTROLLERS -->
-      <!-- Left Hand Controller -->
-      <a-entity sphere-collider="objects: .cube, .network-model" 
-                super-hands
-                hand-controls="hand: left">
+      <!-- 1. CONTROLLERS WITH BOTH PHYSICAL TOUCH AND LASER RAYS -->
+      <!-- Left Hand -->
+      <a-entity sphere-collider="objects: .network-model" 
+                super-hands 
+                hand-controls="hand: left"
+                laser-controls="hand: left"
+                raycaster="objects: .network-model; far: 10">
       </a-entity>
-      <!-- Right Hand Controller -->
-      <a-entity sphere-collider="objects: .cube, .network-model" 
-                super-hands
-                hand-controls="hand: right">
+      
+      <!-- Right Hand -->
+      <a-entity sphere-collider="objects: .network-model" 
+                super-hands 
+                hand-controls="hand: right"
+                laser-controls="hand: right"
+                raycaster="objects: .network-model; far: 10">
       </a-entity>
 
-      <!-- 2. YOUR INTERACTIVE OBJECT -->
-      <!-- We wrap your GLB in a generic entity container that accepts the interaction commands -->
+      <!-- 2. THE GEOMETRY CONTAINER -->
+      <!-- We make sure it uses the 'network-model' class so the hands notice it -->
       <a-entity class="network-model"
                 mixin="interactable"
-                position="0 1.5 -1.5" 
-                scale="0.1 0.1 0.1">
-        <!-- The visual model itself nested inside -->
+                position="0 1.2 -2" 
+                scale="0.05 0.05 0.05">
+        <!-- Visual GLB nested inside -->
         <a-gltf-model src="#my-mesh"></a-gltf-model>
       </a-entity>
       
-      <!-- Environment Setup -->
-      <a-sky color="#1A1A1A"></a-sky>
-      <a-light type="ambient" color="#FFF"></a-light>
+      <!-- Scene Lighting and Void Space Background -->
+      <a-sky color="#111111"></a-sky>
+      <a-light type="ambient" color="#FFF" intensity="0.8"></a-light>
+      <a-light type="directional" color="#FFF" intensity="0.5" position="1 2 1"></a-light>
     </a-scene>
+
   </body>
 </html>
