@@ -1,18 +1,47 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>ASCRIBE Multi-Platform WebXR</title>
+    <title>ASCRIBE Normalized VR MVP</title>
     <!-- A-Frame Core Library -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <!-- A-Frame Extras: Handles model structure and animations -->
+    <!-- A-Frame Extras: Handles model structure and physics -->
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
-    <!-- Super Hands: Handles VR controller grabbing, pulling, and scaling -->
+    <!-- Super Hands: Handles VR grabbing and scaling -->
     <script src="https://unpkg.com/super-hands@^3.0.3/dist/super-hands.min.js"></script>
     <!-- Orbit Controls: Enables mouse dragging, panning, and zooming on desktop -->
     <script src="https://unpkg.com/aframe-orbit-controls@1.3.2/dist/aframe-orbit-controls.min.js"></script>
 
-    <!-- Custom A-Frame component to force transparency onto GLTF materials -->
     <script>
+      // COMPONENT 1: Normalize scale and center pivot dynamically
+      AFRAME.registerComponent('normalize-glb', {
+        init: function () {
+          this.el.addEventListener('model-loaded', () => {
+            const obj = this.el.getObject3D('mesh');
+            if (!obj) return;
+
+            // 1. Compute the model's physical boundary box
+            const box = new THREE.Box3().setFromObject(obj);
+            const size = new THREE.Vector3();
+            box.getSize(size);
+            const center = new THREE.Vector3();
+            box.getCenter(center);
+
+            // 2. Shift the inner geometry so its rotation pivot is exactly in the center
+            obj.position.x -= center.x;
+            obj.position.y -= center.y;
+            obj.position.z -= center.z;
+
+            // 3. Scale the model dynamically so its largest side is exactly 1.0 meter wide
+            const maxDim = Math.max(size.x, size.y, size.z);
+            if (maxDim > 0) {
+              const normalizedScale = 1.0 / maxDim;
+              this.el.setAttribute('scale', `${normalizedScale} ${normalizedScale} ${normalizedScale}`);
+            }
+          });
+        }
+      });
+
+      // COMPONENT 2: Force transparency onto GLB mesh material layers
       AFRAME.registerComponent('force-transparency', {
         schema: { opacity: { type: 'number', default: 0.4 } },
         init: function () {
@@ -23,7 +52,7 @@
                 if (node.isMesh && node.material) {
                   node.material.transparent = true;
                   node.material.opacity = this.data.opacity;
-                  node.material.depthWrite = false; // Prevents inner-face clipping issues in VR
+                  node.material.depthWrite = false; // Prevents overlapping face glitches in VR
                   node.material.needsUpdate = true;
                 }
               });
@@ -40,7 +69,7 @@
         <!-- Your raw GLB hosted directly in your ASCRIBE repository -->
         <a-asset-item id="ascribe-mesh" src="https://raw.githubusercontent.com/dani-lbnl/ascribe/main/4UN3.glb"></a-asset-item>
 
-        <!-- Interactive mixin for grabbing, dragging, and scaling -->
+        <!-- Standard rules to make an object grabbable and stretchable -->
         <a-mixin id="interactable"
                  hoverable grabbable stretchable
                  super-hands="colliderEvent: raycaster-intersection;
@@ -51,47 +80,46 @@
       </a-assets>
 
       <!-- 1. CAMERAS & DESKTOP MOUSE CONTROLS -->
-      <!-- On desktop, this lets you drag to orbit, right-click to pan, and scroll to zoom -->
       <a-entity id="cameraRig">
         <a-entity id="camera" camera
                   position="0 1.6 0"
-                  orbit-controls="target: 0 1.2 -1.5;
+                  orbit-controls="target: 0 1.2 -2;
                                   enableLookHand: false;
-                                  initialPosition: 0 1.6 1.5;
+                                  initialPosition: 0 1.6 0.5;
                                   minDistance: 0.5;
                                   maxDistance: 10;">
         </a-entity>
       </a-entity>
 
-      <!-- 2. VR CONTROLLERS (Only active when in headset VR mode) -->
+      <!-- 2. VR CONTROLLERS (Uses laser-controls targeting .interactable-mesh) -->
       <!-- Left Hand -->
-      <a-entity sphere-collider="objects: .network-model"
+      <a-entity sphere-collider="objects: .interactable-mesh"
                 super-hands
                 hand-controls="hand: left"
                 laser-controls="hand: left"
-                raycaster="objects: .network-model; far: 20">
+                raycaster="objects: .interactable-mesh; far: 20">
       </a-entity>
 
       <!-- Right Hand -->
-      <a-entity sphere-collider="objects: .network-model"
+      <a-entity sphere-collider="objects: .interactable-mesh"
                 super-hands
                 hand-controls="hand: right"
                 laser-controls="hand: right"
-                raycaster="objects: .network-model; far: 20">
+                raycaster="objects: .interactable-mesh; far: 20">
       </a-entity>
 
-      <!-- 3. THE GEOMETRY CONTAINER -->
-      <!-- Scaled down significantly (0.3) and placed comfortably in front of you (z = -1.5) -->
-      <a-entity class="network-model"
-                mixin="interactable"
-                position="0 1.2 -1.5"
-                scale="0.3 0.3 0.3">
-        <!-- Visual GLB model with custom transparency applied -->
-        <a-gltf-model src="#ascribe-mesh" force-transparency="opacity: 0.4"></a-gltf-model>
-      </a-entity>
+      <!-- 3. THE MODEL (No container wrappers, interactable traits attached directly) -->
+      <!-- The position is set exactly 2 meters in front of you (z = -2) at chest height (y = 1.2) -->
+      <a-gltf-model class="interactable-mesh"
+                    mixin="interactable"
+                    src="#ascribe-mesh"
+                    normalize-glb
+                    force-transparency="opacity: 0.45"
+                    position="0 1.2 -2">
+      </a-gltf-model>
 
-      <!-- Lighting and Background -->
-      <a-sky color="#0A0A0C"></a-sky>
+      <!-- Lighting and Minimalist Space Background -->
+      <a-sky color="#0B0B0E"></a-sky>
       <a-light type="ambient" color="#FFF" intensity="0.8"></a-light>
       <a-light type="directional" color="#00D2FF" intensity="0.6" position="-2 4 1"></a-light>
       <a-light type="directional" color="#FF007F" intensity="0.4" position="2 1 1"></a-light>
