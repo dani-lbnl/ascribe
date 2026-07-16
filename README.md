@@ -4,6 +4,7 @@ This work is part of the ASCRIBE project, visit our [website](https://sites.goog
 - A Berkeley Lab project developing Virtual Reality (VR) platforms for scientific research, integrating advanced algorithms with large-scale scientific images.
 - Enables multimodal analysis, structural assessments, and immersive visualization of complex datasets (e.g., X-ray CT, MRI, synthetic 3D imaging).
 - Offers seamless exploration of large 3D images using VR tools compatible with platforms like Meta Quest.
+- A little taste? [Click 🧿](https://dani-lbnl.github.io/ascribe/)
   
 <table border="0">
  <tr>
