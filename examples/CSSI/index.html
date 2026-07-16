@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ASCRIBE Multi-Platform WebXR</title>
+    <!-- A-Frame Core Library -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <!-- A-Frame Extras: Handles model structure and animations -->
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+    <!-- Super Hands: Handles VR controller grabbing, pulling, and scaling -->
+    <script src="https://unpkg.com/super-hands@^3.0.3/dist/super-hands.min.js"></script>
+    <!-- Orbit Controls: Enables mouse dragging, panning, and zooming on desktop -->
+    <script src="https://unpkg.com/aframe-orbit-controls@1.3.2/dist/aframe-orbit-controls.min.js"></script>
+
+    <script>
+      // COMPONENT 1: Normalize scale and center pivot dynamically
+      AFRAME.registerComponent('normalize-glb', {
+        init: function () {
+          this.el.addEventListener('model-loaded', () => {
+            const obj = this.el.getObject3D('mesh');
+            if (!obj) return;
+            const box = new THREE.Box3().setFromObject(obj);
+            const size = new THREE.Vector3();
+            box.getSize(size);
+            const center = new THREE.Vector3();
+            box.getCenter(center);
+            obj.position.x -= center.x;
+            obj.position.y -= center.y;
+            obj.position.z -= center.z;
+            const maxDim = Math.max(size.x, size.y, size.z);
+            if (maxDim > 0) {
+              const normalizedScale = 1.0 / maxDim;
+              this.el.setAttribute('scale', `${normalizedScale} ${normalizedScale} ${normalizedScale}`);
+            }
+          });
+        }
+      });
+
+      // COMPONENT 2: Force transparency onto GLB mesh material layers
+      AFRAME.registerComponent('force-transparency', {
+        schema: { opacity: { type: 'number', default: 0.4 } },
+        init: function () {
+          this.el.addEventListener('model-loaded', () => {
+            const obj3D = this.el.getObject3D('mesh');
+            if (obj3D) {
+              obj3D.traverse((node) => {
+                if (node.isMesh && node.material) {
+                  node.material.transparent = true;
+                  node.material.opacity = this.data.opacity;
+                  node.material.depthWrite = false;
+                  node.material.needsUpdate = true;
+                }
+              });
+            }
+          });
+        }
+      });
+
+      // COMPONENT 3: Fix laser rotation (Rotates object with your wrist when grabbed)
+      AFRAME.registerComponent('laser-rotate', {
+        init: function () {
+          this.el.addEventListener('grab-start', (evt) => {
+            // Save the controller that grabbed us
+            this.grabber = evt.detail.hand;
+            this.initialControllerRot = this.grabber.getAttribute('rotation');
+            this.initialModelRot = this.el.getAttribute('rotation');
+          });
+
+          this.el.addEventListener('grab-end', () => {
+            this.grabber = null;
+          });
+        },
+        tick: function () {
+          if (this.grabber) {
+            const currentCtrlRot = this.grabber.getAttribute('rotation');
+            if (currentCtrlRot && this.initialControllerRot) {
+              // Calculate how much the wrist has turned since grabbing
+              const rotX = currentCtrlRot.x - this.initialControllerRot.x;
+              const rotY = currentCtrlRot.y - this.initialControllerRot.y;
+              const rotZ = currentCtrlRot.z - this.initialControllerRot.z;
+
+              // Apply the difference to the model's rotation
+              this.el.setAttribute('rotation', {
+                x: this.initialModelRot.x + rotX,
+                y: this.initialModelRot.y + rotY,
+                z: this.initialModelRot.z + rotZ
+              });
+            }
+          }
+        }
+      });
+    </script>
+  </head>
+  <body>
+
+    <a-scene webxr>
+      <a-assets>
+        <a-asset-item id="ascribe-mesh" src="https://raw.githubusercontent.com/dani-lbnl/ascribe/main/examples/cssi.glb"></a-asset-item>
+
+        <!-- Standard rules to make an object grabbable and stretchable -->
+        <a-mixin id="interactable"
+                 hoverable grabbable stretchable
+                 super-hands="colliderEvent: raycaster-intersection;
+                              colliderEventProperty: els;
+                              colliderEndEvent:raycaster-intersection-cleared;
+                              colliderEndEventProperty: clearedEls;">
+        </a-mixin>
+      </a-assets>
+
+      <!-- 1. CAMERAS & DESKTOP MOUSE CONTROLS -->
+      <a-entity id="cameraRig">
+        <a-entity id="camera" camera
+                  position="0 1.6 0"
+                  orbit-controls="target: 0 1.2 -2;
+                                  enableLookHand: false;
+                                  initialPosition: 0 1.6 0.5;
+                                  minDistance: 0.5;
+                                  maxDistance: 10;">
+        </a-entity>
+      </a-entity>
+
+      <!-- 2. VR CONTROLLERS -->
+      <!-- Left Hand -->
+      <a-entity sphere-collider="objects: .interactable-mesh"
+                super-hands
+                hand-controls="hand: left"
+                laser-controls="hand: left"
+                raycaster="objects: .interactable-mesh; far: 20">
+      </a-entity>
+
+      <!-- Right Hand -->
+      <a-entity sphere-collider="objects: .interactable-mesh"
+                super-hands
+                hand-controls="hand: right"
+                laser-controls="hand: right"
+                raycaster="objects: .interactable-mesh; far: 20">
+      </a-entity>
+
+      <!-- 3. THE MODEL WITH ACTIVE WRIST-ROTATION -->
+      <a-gltf-model class="interactable-mesh"
+                    mixin="interactable"
+                    src="#ascribe-mesh"
+                    normalize-glb
+                    laser-rotate
+                    force-transparency="opacity: 0.45"
+                    position="0 1.2 -2">
+      </a-gltf-model>
+
+      <!-- Lighting and Minimalist Space Background -->
+      <a-sky color="#0B0B0E"></a-sky>
+      <a-light type="ambient" color="#FFF" intensity="0.8"></a-light>
+      <a-light type="directional" color="#00D2FF" intensity="0.6" position="-2 4 1"></a-light>
+      <a-light type="directional" color="#FF007F" intensity="0.4" position="2 1 1"></a-light>
+    </a-scene>
+
+  </body>
+</html>
