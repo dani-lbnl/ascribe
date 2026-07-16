@@ -1,19 +1,44 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Interactive Torus VR MVP</title>
+    <title>ASCRIBE Interactive WebXR MVP</title>
     <!-- A-Frame Core Library -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <!-- A-Frame Extras: Provides the missing collision math engines -->
+    <!-- A-Frame Extras: Handles model structure and animations -->
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
-    <!-- Super Hands: Handles grabbing, pulling, and scaling gestures -->
+    <!-- Super Hands: Enables spatial physics, grabbing, and scaling -->
     <script src="https://unpkg.com/super-hands@^3.0.3/dist/super-hands.min.js"></script>
+
+    <!-- Custom A-Frame component to force transparency onto GLTF materials -->
+    <script>
+      AFRAME.registerComponent('force-transparency', {
+        schema: { opacity: { type: 'number', default: 0.4 } },
+        init: function () {
+          this.el.addEventListener('model-loaded', () => {
+            const obj3D = this.el.getObject3D('mesh');
+            if (obj3D) {
+              obj3D.traverse((node) => {
+                if (node.isMesh && node.material) {
+                  node.material.transparent = true;
+                  node.material.opacity = this.data.opacity;
+                  node.material.depthWrite = false; // Prevents inner-face clipping issues in VR
+                  node.material.needsUpdate = true;
+                }
+              });
+            }
+          });
+        }
+      });
+    </script>
   </head>
   <body>
-    
+
     <a-scene webxr>
       <a-assets>
-        <!-- Rules allowing the object to respond to both close-up touches and lasers -->
+        <!-- Your raw GLB hosted directly in your ASCRIBE repository -->
+        <a-asset-item id="ascribe-mesh" src="https://raw.githubusercontent.com/dani-lbnl/ascribe/main/4UN3.glb"></a-asset-item>
+
+        <!-- Interactive mixin for grabbing, dragging, and scaling -->
         <a-mixin id="interactable"
                  hoverable grabbable stretchable
                  super-hands="colliderEvent: raycaster-intersection;
@@ -23,37 +48,39 @@
         </a-mixin>
       </a-assets>
 
-      <!-- 1. CONTROLLERS WITH BOTH PHYSICAL TOUCH AND LASER RAYS -->
+      <!-- 1. USER & CONTROLLERS (Laser controls + Physical collision) -->
       <!-- Left Hand -->
-      <a-entity sphere-collider="objects: .interactable-mesh" 
-                super-hands 
+      <a-entity sphere-collider="objects: .network-model"
+                super-hands
                 hand-controls="hand: left"
                 laser-controls="hand: left"
-                raycaster="objects: .interactable-mesh; far: 10">
-      </a-entity>
-      
-      <!-- Right Hand -->
-      <a-entity sphere-collider="objects: .interactable-mesh" 
-                super-hands 
-                hand-controls="hand: right"
-                laser-controls="hand: right"
-                raycaster="objects: .interactable-mesh; far: 10">
+                raycaster="objects: .network-model; far: 20">
       </a-entity>
 
-      <!-- 2. THE INTERACTIVE TORUS KNOT -->
-      <!-- We attach the 'interactable-mesh' class so the raycasters can target it -->
-      <a-torus-knot class="interactable-mesh"
-                    mixin="interactable"
-                    position="0 1.5 -2" 
-                    radius="0.4" 
-                    radius-tubular="0.04" 
-                    color="#4CC3D9">
-      </a-torus-knot>
-      
-      <!-- Scene Lighting and Void Space Background -->
-      <a-sky color="#111111"></a-sky>
+      <!-- Right Hand -->
+      <a-entity sphere-collider="objects: .network-model"
+                super-hands
+                hand-controls="hand: right"
+                laser-controls="hand: right"
+                raycaster="objects: .network-model; far: 20">
+      </a-entity>
+
+      <!-- 2. THE GEOMETRY CONTAINER -->
+      <!-- We scale the network to be massive (scale="4 4 4") and drop it near floor-level (y=0.2) -->
+      <!-- This allows you to walk physically inside the pore channels and structures -->
+      <a-entity class="network-model"
+                mixin="interactable"
+                position="0 0.2 -3"
+                scale="4 4 4">
+        <!-- Visual GLB model with custom transparency applied (40% solid, 60% transparent) -->
+        <a-gltf-model src="#ascribe-mesh" force-transparency="opacity: 0.4"></a-gltf-model>
+      </a-entity>
+
+      <!-- Environment Setup -->
+      <a-sky color="#0A0A0C"></a-sky>
       <a-light type="ambient" color="#FFF" intensity="0.8"></a-light>
-      <a-light type="directional" color="#FFF" intensity="0.5" position="1 2 1"></a-light>
+      <a-light type="directional" color="#00D2FF" intensity="0.6" position="-2 4 1"></a-light>
+      <a-light type="directional" color="#FF007F" intensity="0.4" position="2 1 1"></a-light>
     </a-scene>
 
   </body>
